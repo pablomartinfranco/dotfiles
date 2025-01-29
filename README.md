@@ -29,3 +29,40 @@ sudo apt-get install dselect
 sudo dpkg --set-selections < installed_packages.txt
 sudo apt-get dselect-upgrade
 ```
+### TODO .dotfiles
+
+karabiner
+nvim
+skhd
+ssh
+starship
+go-blocksite
+raycast
+ranger
+fish
+fzf
+btop
+htop
+tmux
+tmuxinator
+wezterm
+zellij
+zshrc
+
+functions
+gdbinit
+gitattributes
+gitconfig
+curlrc
+wgetrc
+aliases
+exports
+editorconfig
+bash_profile
+bash_prompt
+inputrc
+hushlogin
+screenrc
+tmux.conf
+nvimrc
+vimrc
