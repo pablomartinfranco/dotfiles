@@ -1,0 +1,209 @@
+-- init.lua configuration
+
+-- Install mason.nvim if not installed
+local install_path = vim.fn.stdpath('data') .. '/site/pack/plugins/start/mason.nvim'
+if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
+  vim.fn.system({'git', 'clone', '--depth', '1', 'https://github.com/williamboman/mason.nvim', install_path})
+  vim.cmd 'packadd mason.nvim'
+end
+
+-- Install nvim-lspconfig if not installed
+local lspconfig_path = vim.fn.stdpath('data') .. '/site/pack/plugins/start/nvim-lspconfig'
+if vim.fn.empty(vim.fn.glob(lspconfig_path)) > 0 then
+  vim.fn.system({'git', 'clone', '--depth', '1', 'https://github.com/neovim/nvim-lspconfig', lspconfig_path})
+  vim.cmd 'packadd nvim-lspconfig'
+end
+
+-- Install mason-lspconfig.nvim if not installed
+local mason_lspconfig_path = vim.fn.stdpath('data') .. '/site/pack/plugins/start/mason-lspconfig.nvim'
+if vim.fn.empty(vim.fn.glob(mason_lspconfig_path)) > 0 then
+  vim.fn.system({'git', 'clone', '--depth', '1', 'https://github.com/williamboman/mason-lspconfig.nvim', mason_lspconfig_path})
+  vim.cmd 'packadd mason-lspconfig.nvim'
+end
+
+-- Install nvim-cmp and its dependencies if not installed
+local cmp_path = vim.fn.stdpath('data') .. '/site/pack/plugins/start/nvim-cmp'
+if vim.fn.empty(vim.fn.glob(cmp_path)) > 0 then
+  vim.fn.system({'git', 'clone', '--depth', '1', 'https://github.com/hrsh7th/nvim-cmp', cmp_path})
+  vim.cmd 'packadd nvim-cmp'
+end
+
+local cmp_buffer_path = vim.fn.stdpath('data') .. '/site/pack/plugins/start/cmp-buffer'
+if vim.fn.empty(vim.fn.glob(cmp_buffer_path)) > 0 then
+  vim.fn.system({'git', 'clone', '--depth', '1', 'https://github.com/hrsh7th/cmp-buffer', cmp_buffer_path})
+  vim.cmd 'packadd cmp-buffer'
+end
+
+local cmp_path_path = vim.fn.stdpath('data') .. '/site/pack/plugins/start/cmp-path'
+if vim.fn.empty(vim.fn.glob(cmp_path_path)) > 0 then
+  vim.fn.system({'git', 'clone', '--depth', '1', 'https://github.com/hrsh7th/cmp-path', cmp_path_path})
+  vim.cmd 'packadd cmp-path'
+end
+
+local cmp_nvim_lsp_path = vim.fn.stdpath('data') .. '/site/pack/plugins/start/cmp-nvim-lsp'
+if vim.fn.empty(vim.fn.glob(cmp_nvim_lsp_path)) > 0 then
+  vim.fn.system({'git', 'clone', '--depth', '1', 'https://github.com/hrsh7th/cmp-nvim-lsp', cmp_nvim_lsp_path})
+  vim.cmd 'packadd cmp-nvim-lsp'
+end
+
+-- Install telescope.nvim if not installed
+local telescope_path = vim.fn.stdpath('data') .. '/site/pack/plugins/start/telescope.nvim'
+if vim.fn.empty(vim.fn.glob(telescope_path)) > 0 then
+  vim.fn.system({'git', 'clone', '--depth', '1', 'https://github.com/nvim-telescope/telescope.nvim', telescope_path})
+  vim.cmd 'packadd telescope.nvim'
+end
+
+-- Install plenary.nvim if not installed
+local plenary_path = vim.fn.stdpath('data') .. '/site/pack/plugins/start/plenary.nvim'
+if vim.fn.empty(vim.fn.glob(plenary_path)) > 0 then
+  vim.fn.system({'git', 'clone', '--depth', '1', 'https://github.com/nvim-lua/plenary.nvim', plenary_path})
+  vim.cmd 'packadd plenary.nvim'
+end
+
+-- Install null-ls.nvim if not installed
+local null_ls_path = vim.fn.stdpath('data') .. '/site/pack/plugins/start/none-ls.nvim'
+if vim.fn.empty(vim.fn.glob(null_ls_path)) > 0 then
+  vim.fn.system({'git', 'clone', '--depth', '1', 'https://github.com/nvimtools/none-ls.nvim', null_ls_path})
+  vim.cmd 'packadd none-ls.nvim'
+end
+
+-- Install mason-null-ls.nvim if not installed
+local mason_null_ls_path = vim.fn.stdpath('data') .. '/site/pack/plugins/start/mason-null-ls.nvim'
+if vim.fn.empty(vim.fn.glob(mason_null_ls_path)) > 0 then
+  vim.fn.system({'git', 'clone', '--depth', '1', 'https://github.com/jay-babu/mason-null-ls.nvim', mason_null_ls_path})
+  vim.cmd 'packadd mason-null-ls.nvim'
+end
+
+require("mason").setup()
+
+require("mason-null-ls").setup({
+    ensure_installed = { "golangci-lint", "gofumpt", "goimports", "gomodifytags", "gotest" },
+    automatic_installation = false, handlers = {},
+})
+
+--require("null-ls").setup()
+--require("null-ls").setup({ sources = {} }) -- Anything not supported by mason.
+
+--local servers = { 'rust_analyzer', 'ocamllsp', 'gopls', 'pyright', 'jdtls', 'asm_lsp', 'clangd' }
+local servers = { 'rust_analyzer', 'gopls', 'pyright', 'jdtls', 'clangd' }
+
+require("mason-lspconfig").setup({ ensure_installed = servers })
+
+local on_attach = function(_, _)
+  vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, {})
+  vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, {})
+  vim.keymap.set('n', 'gd', vim.lsp.buf.definition, {})
+  vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, {})
+  vim.keymap.set('n', 'gr', require('telescope.builtin').lsp_references, {})
+  vim.keymap.set('n', 'K', vim.lsp.buf.hover, {})
+end
+
+local capabilities = require('cmp_nvim_lsp').default_capabilities()
+
+local lspconfig = require('lspconfig')
+
+for _, lsp in ipairs(servers) do
+  lspconfig[lsp].setup {
+    on_attach = on_attach,
+    capabilities = capabilities,
+  }
+end
+
+--local null_ls = require("null-ls")
+
+--null_ls.setup({
+--    debug = true,
+--    sources = {
+--        null_ls.builtins.code_actions.impl,
+--        null_ls.builtins.code_actions.gomodifytags,
+--        null_ls.builtins.code_actions.refactoring,
+
+--        null_ls.builtins.diagnostics.revive,
+--        null_ls.builtins.diagnostics.semgrep,
+--        null_ls.builtins.diagnostics.staticcheck,
+
+--          null_ls.builtins.formatting.gofmt,
+--        null_ls.builtins.formatting.gofumpt,
+--        null_ls.builtins.formatting.goimports,
+--        null_ls.builtins.formatting.goimports_reviser,
+--        null_ls.builtins.formatting.golines,
+
+--        null_ls.builtins.diagnostics.golangci_lint,
+--        null_ls.builtins.diagnostics.golangci_lint.with({
+--            command = "golangci-lint",
+--            args = { "run", "--fix=false", "--out-format=json" },
+--            args = { "run", "--out-format", "json" },
+--        }),
+--    },
+--    on_attach = on_attach,
+--})
+
+--[[
+null_ls.setup({
+    sources = {
+        null_ls.builtins.diagnostics.golangci_lint,
+    },
+    on_attach = function(client, bufnr)
+        --print("null-ls attached to buffer", bufnr)
+        if client.server_capabilities.documentFormattingProvider then
+            vim.cmd("augroup LspFormatting")
+            vim.cmd("autocmd! * <buffer>")
+            vim.cmd("autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync()")
+            vim.cmd("augroup END")
+        end
+        --print("null-ls attached to buffer", bufnr)
+    on_attach(client, bufnr)
+    end,
+})
+]]--
+
+--require("mason-null-ls").setup({
+--    ensure_installed = { "golangci-lint", "gofmt" },
+--    automatic_installation = true,
+--})
+
+-- Install vim color schemes
+local gruvbox_path = vim.fn.stdpath('data') .. '/site/pack/plugins/start/gruvbox'
+if vim.fn.empty(vim.fn.glob(gruvbox_path)) > 0 then
+  vim.fn.system({'git', 'clone', '--depth', '1', 'https://github.com/morhetz/gruvbox', gruvbox_path})
+  vim.cmd 'packadd gruvbox'
+end
+
+local solarized_nvim_path = vim.fn.stdpath('data') .. '/site/pack/plugins/start/solarized.nvim'
+if vim.fn.empty(vim.fn.glob(solarized_nvim_path)) > 0 then
+  vim.fn.system({'git', 'clone', '--depth', '1', 'https://github.com/maxmx03/solarized.nvim', solarized_nvim_path})
+  vim.cmd 'packadd solarized.nvim'
+end
+
+local dracula_path = vim.fn.stdpath('data') .. '/site/pack/plugins/start/dracula'
+if vim.fn.empty(vim.fn.glob(dracula_path)) > 0 then
+  vim.fn.system({'git', 'clone', '--depth', '1', 'https://github.com/dracula/vim', dracula_path})
+  vim.cmd 'packadd dracula'
+end
+
+-- Editor settings
+vim.cmd 'syntax on'
+vim.opt.swapfile = false
+vim.opt.termguicolors = true
+vim.opt.signcolumn = "yes"
+vim.opt.background = "dark"
+-- vim.lsp.set_log_level("debug")
+
+-- Set colorscheme
+vim.cmd 'colorscheme dracula'
+-- vim.cmd 'colorscheme solarized'
+-- vim.cmd 'colorscheme gruvbox'
+-- vim.cmd 'colorscheme default'
+-- vim.cmd 'colorscheme darkblue'
+-- vim.cmd 'colorscheme desert'
+-- vim.cmd 'colorscheme elflord'
+-- vim.cmd 'colorscheme evening'
+-- vim.cmd 'colorscheme industry'
+-- vim.cmd 'colorscheme morning'
+-- vim.cmd 'colorscheme murphy'
+-- vim.cmd 'colorscheme pablo'
+-- vim.cmd 'colorscheme peachpuff'
+-- vim.cmd 'colorscheme ron'
+-- vim.cmd 'colorscheme slate'
+-- vim.cmd 'colorscheme torte'
+-- vim.cmd 'colorscheme zellner'
