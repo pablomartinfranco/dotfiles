@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Source dotfiles
-[ -f ~/.profile ] && . ~/.profile
 [ -f ~/.bashrc ] && . ~/.bashrc
 
 # Basic environment
@@ -77,3 +76,6 @@ if [ -d "$DIR" ]; then
     echo "Detected : $DIR"
     export SCALA_HOME="$DIR"
 fi
+
+FILE="$HOME/opt/python/venv-cpy311/bin/activate"
+[ -f "$FILE" ] && . "$FILE"
